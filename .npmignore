@@ -1,0 +1,10 @@
+*.*
+*.log
+test
+test/*
+node_modules
+node_modules/*
+examples
+examples/*
+docs
+docs/*

@@ -13,7 +13,7 @@ $ npm install --save skizze
 
 ## Example
 
-```
+```javascript
 var skizze = require('skizze');
 
 var client = skizze.createClient("127.0.0.1:3596", { insecure: true });

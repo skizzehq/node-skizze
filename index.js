@@ -19,10 +19,10 @@ var defaultRankSize = 100;
  * @enum {number}
  */
 var sketchType = {
-  MEMBERSHIP  = 1,
-  FREQUENCY   = 2,
-  RANKINGS    = 3,
-  CARDINALITY = 4
+  MEMBERSHIP  : 1,
+  FREQUENCY   : 2,
+  RANKINGS    : 3,
+  CARDINALITY : 4
 };
 
 /**
@@ -31,10 +31,10 @@ var sketchType = {
  * @enum {number}
  */
 var snapshotState = {
-  PENDING     = 1,
-  IN_PROGRESS = 2,
-  SUCCESSFUL  = 3,
-  FAILED      = 4
+  PENDING     : 1,
+  IN_PROGRESS : 2,
+  SUCCESSFUL  : 3,
+  FAILED      : 4
 };
 
 /**
@@ -44,10 +44,10 @@ var snapshotState = {
 function SkizzeClient(address, options) {
   events.EventEmitter.call(this);
 
-  this.skizzeProto = grpc.load("./skizze.proto").protobuf;
+  this.skizzeProto = grpc.load(__dirname +"/skizze.proto").protobuf;
 
-  var clientOpts = options.insecure ? grpc.Credentials.createInsecure() : null;
-  this.client = new skizzeProto.Skizze(address, clientOpts);
+  var clientOpts = options.insecure ? grpc.credentials.createInsecure() : null;
+  this.client = new this.skizzeProto.Skizze(address, clientOpts);
 }
 
 /**
@@ -252,7 +252,7 @@ SkizzeClient.prototype.getMembership = function(name, values, callback) {
     values: values
   },
   function(err, reply) {
-    calback(err, reply ? reply.results[0] : null);
+    callback(err, reply ? reply.results[0].memberships : null);
   });
 }
 
@@ -276,7 +276,13 @@ SkizzeClient.prototype.getMultiMembership = function(names, values, callback) {
     values: values
   },
   function(err, reply) {
-    calback(err, reply ? reply.results : null);
+    var ret = [];
+    if (reply) {
+      reply.results.forEach(function(result) {
+        ret.push(result.memberships);
+      });
+    }
+    callback(err, err ? null : ret)
   });
 }
 
@@ -294,7 +300,7 @@ SkizzeClient.prototype.getFrequency = function(name, values, callback) {
     values: values
   },
   function(err, reply) {
-    calback(err, reply ? reply.results[0] : null);
+    callback(err, reply ? unpackIntegerResults(reply.results[0].frequencies) : null);
   });
 }
 
@@ -318,7 +324,13 @@ SkizzeClient.prototype.getMultiFrequency = function(names, values, callback) {
     values: values
   },
   function(err, reply) {
-    calback(err, reply ? reply.results : null);
+    let ret = []
+    if (reply) {
+      reply.results.forEach(function(result) {
+        ret.push(unpackIntegerResults(result.frequencies));
+      });
+    }
+    callback(err, err ? null : ret);
   });
 }
 
@@ -334,7 +346,7 @@ SkizzeClient.prototype.getRankings = function(name, callback) {
     ]
   },
   function(err, reply) {
-    calback(err, reply ? reply.results[0] : null);
+    callback(err, reply ? unpackIntegerResults(reply.results[0].rankings) : null);
   });
 }
 
@@ -356,7 +368,13 @@ SkizzeClient.prototype.getMultiRankings = function(names, callback) {
     sketches: sketches
   },
   function(err, reply) {
-    calback(err, reply ? reply.results : null);
+    let ret = []
+    if (reply) {
+      reply.results.forEach(function(result) {
+        ret.push(unpackIntegerResults(result.rankings));
+      });
+    }
+    callback(err, err ? null : ret);
   });
 }
 
@@ -372,7 +390,7 @@ SkizzeClient.prototype.getCardinality = function(name, callback) {
     ]
   },
   function(err, reply) {
-    calback(err, reply ? reply.results[0] : null);
+    callback(err, reply ? parseInt(reply.results[0].cardinality) : null);
   });
 }
 
@@ -394,7 +412,13 @@ SkizzeClient.prototype.getMultiCardinality = function(names, callback) {
     sketches: sketches
   },
   function(err, reply) {
-    calback(err, reply ? reply.results : null);
+    let ret = []
+    if (reply) {
+      reply.results.forEach(function(result) {
+        ret.push(parseInt(result.cardinality));
+      });
+    }
+    callback(err, err ? null : ret);
   });
 }
 
@@ -410,6 +434,14 @@ var createClient = function(address, options) {
     throw new Error("Address must be valid.");
   }
   return new SkizzeClient(address, options || {});
+}
+
+function unpackIntegerResults(results) {
+  var ret = [];
+  results.forEach(function(result) {
+    ret.push({ value: result.value, count: parseInt(result.count) });
+  });
+  return ret;
 }
 
 exports.createClient = createClient;

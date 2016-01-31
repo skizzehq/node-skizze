@@ -6,12 +6,28 @@ node-skizze are Node.js bindings for the [Skizze](https://github.com/skizzehq/sk
 
 ## Installation
 
-`TODO`
+```
+$ npm install --save skizze
+```
 
 
 ## Example
 
-`TODO`
+```
+var skizze = require('skizze');
+
+var client = skizze.createClient("127.0.0.1:3596", { insecure: true });
+
+client.createDomain("mydomain", function(err) {
+
+	client.addToDomain("mydomain", ['alvin', 'simon', 'theodore'], function(err) {
+		client.getCardinality("mydomain", function(err, card) {
+			console.log(err, card);
+		});
+	});
+});
+
+```
 
 
 ## Documentation
@@ -367,9 +383,9 @@ Creates and returns a new client connection to Skizze
 ### TODO
  * [ ] Merge in testing
  * [ ] Hook up to Travis
- * [ ] Examples
- * [ ] Versioning
- * [ ] npm
+ * [x] Example
+ * [x] Versioning
+ * [x] npm
 
 
 ### License

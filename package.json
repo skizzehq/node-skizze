@@ -1,5 +1,5 @@
 {
-  "name": "node-skizze",
+  "name": "skizze",
   "version": "0.0.1",
   "description": "Node.js bindings to Skizze (https://github.com/skizzehq/skizze)",
   "main": "./index.js",

@@ -61,5 +61,4 @@ function onError(err) {
   client.deleteDomain(name, process.exit.bind(null, 1));
 }
 
-
 main();

@@ -1,6 +1,6 @@
 {
   "name": "skizze",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Node.js bindings to Skizze (https://github.com/skizzehq/skizze)",
   "main": "./index.js",
   "scripts": {
